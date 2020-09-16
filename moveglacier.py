@@ -22,7 +22,7 @@ DEBUG = 1
 
 import os, sys
 
-if len(sys.argv) == 1:
+if len(sys.argv) == 0:
     print ( "Mode de d'emploi : " + __version__ )
     print ( "                                 " )
     print ( "    moveglacier.py chemin" )
@@ -31,17 +31,56 @@ if len(sys.argv) == 1:
 #
 #   Recuperation des arguments de la ligne de commande
 #
-sChe = sys.argv[1]
-sChe = '/Users/patrickrioche/Desktop/Aarchiver'
+#sChe = sys.argv[1]
+#sChe = '/Users/patrickrioche/Desktop/Aarchiver'
+sChe = 'C:/Users/Rioche-P/OneDrive - Harmonie Mutuelle/Bureau/Aarchiver'
 #sTable = sFic.split("/")[-1].split(".")[0]
 
 #
 #   Initialisation global
 #
+import os
+from datetime import datetime
+
 dGlacier = {}
 
 #
 #   Definition des fonctions
 #
+def get_creation_date(file):
+    stat = os.stat(file)
+    try:
+        return stat.st_birthtime
+    except AttributeError:
+        # Nous sommes probablement sous Linux. Pas de moyen pour obtenir la date de création, que la dernière date de modification.
+        return stat.st_mtime
 
-if (DEBUG): print ( "sChe = " + sChe )
+def aff_creation_date(file):
+    creation_date = datetime.fromtimestamp(get_creation_date(file))
+    print("Date de création: %s" % creation_date)
+
+def aff_rep_s3(file):
+    sDateCreat = datetime.fromtimestamp(get_creation_date(file))
+    print( sDateCreat )
+
+def moveglacier( s3Root, s3File ):
+    if s3File[0] == ".": return
+    print( s3File )
+    aff_rep_s3( s3Root + "/" + s3File)
+
+#
+#   Programme Principal
+#
+if (DEBUG): print ( "sChe=>" + sChe + "<=" )
+print ( "==> " + sChe )
+
+for sRoot, sDir, sFiles in os.walk(sChe):
+    if (DEBUG) : print ( "sRoot=>" + sRoot + "<=")
+    for sFile in sFiles:
+        moveglacier( sRoot, sFile )
+
+
+print ( "<== " + sChe )
+#   
+#   Fin de programme
+#
