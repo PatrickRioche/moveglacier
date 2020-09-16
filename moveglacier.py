@@ -47,6 +47,10 @@ dGlacier = {}
 #
 #   Definition des fonctions
 #
+
+#
+#   Definition des fonctions Exemples
+#
 def get_creation_date(file):
     stat = os.stat(file)
     try:
@@ -55,29 +59,56 @@ def get_creation_date(file):
         # Nous sommes probablement sous Linux. Pas de moyen pour obtenir la date de création, que la dernière date de modification.
         return stat.st_mtime
 
-def aff_creation_date(file):
-    creation_date = datetime.fromtimestamp(get_creation_date(file))
-    print("Date de création: %s" % creation_date)
+def ReplaceCS( sTheString ):
+    sS1 = sTheString.lstrip().rstrip()
+    sS2 = sS1.replace('\'','/')
+    return( sS2 )
 
-def aff_rep_s3(file):
-    sDateCreat = datetime.fromtimestamp(get_creation_date(file))
-    print( sDateCreat )
+def GetAAAA( sTheCreatDateFile ):
+    sS1 = sTheCreatDateFile.split("-"[0])
+    return sS1[0]
 
-def moveglacier( s3Root, s3File ):
+def GetMM( sTheCreatDateFile ):
+    sS1 = sTheCreatDateFile.split("-"[0])
+    return sS1[1]
+
+def GetDD( sTheCreatDateFile ):
+    sS1 = sTheCreatDateFile.split("-"[0])
+    sS2 = sS1[2].split(" "[0])
+    return sS2[0]
+
+#
+#   Definition de mes fonctions
+#
+def GetCreatDateFile(sFile):
+    sCreatDateFile = datetime.fromtimestamp(get_creation_date(sFile) )
+    return str(sCreatDateFile)
+
+def GetExtendFile( sFile ):
+    sS1 = sFile.split("."[0])
+    return sS1[1]
+
+def MoveGlacier( s3Root, s3File ):
     if s3File[0] == ".": return
     print( s3File )
-    aff_rep_s3( s3Root + "/" + s3File)
+    sCreatDateFile = GetCreatDateFile(s3Root + "/" + s3File)
+    print( GetAAAA( sCreatDateFile ) )
+    print( GetMM(   sCreatDateFile ) )
+    print( GetDD(   sCreatDateFile ) )         
+    print( GetExtendFile( s3File) ) 
 
-#
+
 #   Programme Principal
 #
+sChe = ReplaceCS( sChe )
+
 if (DEBUG): print ( "sChe=>" + sChe + "<=" )
 print ( "==> " + sChe )
 
 for sRoot, sDir, sFiles in os.walk(sChe):
     if (DEBUG) : print ( "sRoot=>" + sRoot + "<=")
     for sFile in sFiles:
-        moveglacier( sRoot, sFile )
+        MoveGlacier( sRoot, sFile )
 
 
 print ( "<== " + sChe )
