@@ -39,7 +39,7 @@ sChe = 'C:/Users/Rioche-P/OneDrive - Harmonie Mutuelle/Bureau/Aarchiver'
 #
 #   Initialisation global
 #
-import os
+import shutil, os
 from datetime import datetime
 
 dGlacier = {}
@@ -59,9 +59,12 @@ def get_creation_date(file):
         # Nous sommes probablement sous Linux. Pas de moyen pour obtenir la date de création, que la dernière date de modification.
         return stat.st_mtime
 
+#
+#   Definition de mes fonctions
+#
 def ReplaceCS( sTheString ):
     sS1 = sTheString.lstrip().rstrip()
-    sS2 = sS1.replace('\'','/')
+    sS2 = sS1.replace('\\','/')
     return( sS2 )
 
 def GetAAAA( sTheCreatDateFile ):
@@ -77,9 +80,6 @@ def GetDD( sTheCreatDateFile ):
     sS2 = sS1[2].split(" "[0])
     return sS2[0]
 
-#
-#   Definition de mes fonctions
-#
 def GetCreatDateFile(sFile):
     sCreatDateFile = datetime.fromtimestamp(get_creation_date(sFile) )
     return str(sCreatDateFile)
@@ -90,14 +90,13 @@ def GetExtendFile( sFile ):
 
 def MoveGlacier( s3Root, s3File ):
     if s3File[0] == ".": return
-    print( s3File )
+    if (DEBUG) : print( s3File )
     sCreatDateFile = GetCreatDateFile(s3Root + "/" + s3File)
-    print( GetAAAA( sCreatDateFile ) )
-    print( GetMM(   sCreatDateFile ) )
-    print( GetDD(   sCreatDateFile ) )         
-    print( GetExtendFile( s3File) ) 
-
-
+    sFileSrc = ReplaceCS(s3Root) + "/" + s3File
+    sFileDst = ReplaceCS(sChe) + "/s3g/" + GetExtendFile(s3File) + "/" + GetAAAA(sCreatDateFile) + "/" + GetMM(sCreatDateFile) + "/" + GetDD(sCreatDateFile) + "/" + s3File
+    if (DEBUG) : print( "MOVE " + sFileSrc + "->" + sFileDst )
+    #shutil.move( sFileSrc, sFileDst )
+ 
 #   Programme Principal
 #
 sChe = ReplaceCS( sChe )
