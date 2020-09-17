@@ -88,14 +88,29 @@ def GetExtendFile( sFile ):
     sS1 = sFile.split("."[0])
     return sS1[1]
 
+def MakS3Dir( sTheDirSrc, sTheDirDst ):
+    sSupDir = sTheDirDst.replace( sTheDirSrc, "")
+    if (DEBUG) : print( "sSupDir=>" + sSupDir + "<=" )    
+    sDirs = sSupDir.split("/"[0])
+    sS1 = sDirs[1:]
+    sMakDir = sS1[:-1]
+    sTheRootDir = sTheDirSrc
+    for sItemDir in sMakDir:
+        sTheRootDir = sTheRootDir + "/" + sItemDir
+        print( "creer=>" + sTheRootDir + "<" )
+        if not os.path.exists(sTheRootDir):
+            os.makedirs(sTheRootDir)
+    return
+
 def MoveGlacier( s3Root, s3File ):
     if s3File[0] == ".": return
     if (DEBUG) : print( s3File )
     sCreatDateFile = GetCreatDateFile(s3Root + "/" + s3File)
-    sFileSrc = ReplaceCS(s3Root) + "/" + s3File
-    sFileDst = ReplaceCS(sChe) + "/s3g/" + GetExtendFile(s3File) + "/" + GetAAAA(sCreatDateFile) + "/" + GetMM(sCreatDateFile) + "/" + GetDD(sCreatDateFile) + "/" + s3File
-    if (DEBUG) : print( "MOVE " + sFileSrc + "->" + sFileDst )
-    #shutil.move( sFileSrc, sFileDst )
+    sDirSrc = ReplaceCS(s3Root) + "/" 
+    sDirDst = ReplaceCS(sChe) + "/s3g/" + GetExtendFile(s3File) + "/" + GetAAAA(sCreatDateFile) + "/" + GetMM(sCreatDateFile) + "/" + GetDD(sCreatDateFile) + "/" 
+    if (DEBUG) : print( "MOVE " + sDirSrc + s3File + "->" + sDirDst + s3File )
+    MakS3Dir( sChe, sDirDst )
+    shutil.move( sDirSrc + s3File, sDirDst + s3File )
  
 #   Programme Principal
 #
