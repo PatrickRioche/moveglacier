@@ -16,9 +16,10 @@
 #
 #   Version :
 #       V1.0    29/08/2020
+#       V1.1    18/09/2020
 #
-__version__ = 'V1.0'
-DEBUG = 1
+__version__ = 'V1.1'
+DEBUG = 0
 
 import os, sys
 
@@ -33,7 +34,8 @@ if len(sys.argv) == 0:
 #
 #sChe = sys.argv[1]
 #sChe = '/Users/patrickrioche/Desktop/Aarchiver'
-sChe = 'C:/Users/Rioche-P/OneDrive - Harmonie Mutuelle/Bureau/Aarchiver'
+#sChe = 'C:/Users/Rioche-P/OneDrive - Harmonie Mutuelle/Bureau/Aarchiver'
+sChe = 'C:\MYTMP\MOVEGLACIER'
 #sTable = sFic.split("/")[-1].split(".")[0]
 
 #
@@ -41,8 +43,6 @@ sChe = 'C:/Users/Rioche-P/OneDrive - Harmonie Mutuelle/Bureau/Aarchiver'
 #
 import shutil, os
 from datetime import datetime
-
-dGlacier = {}
 
 #
 #   Definition des fonctions
@@ -87,17 +87,33 @@ def GetCreatDateFile(sFile):
 def GetExtendFile( sFile ):
     sS1 = sFile.split("."[0])
     return sS1[1]
+ 
 
 def MakS3Dir( sTheDirSrc, sTheDirDst ):
     sSupDir = sTheDirDst.replace( sTheDirSrc, "")
-    if (DEBUG) : print( "sSupDir=>" + sSupDir + "<=" )    
+    if (DEBUG) : print( "MakS3Dir sSupDir=>" + sSupDir + "<=" )    
     sDirs = sSupDir.split("/"[0])
     sS1 = sDirs[1:]
     sMakDir = sS1[:-1]
     sTheRootDir = sTheDirSrc
     for sItemDir in sMakDir:
         sTheRootDir = sTheRootDir + "/" + sItemDir
-        print( "creer=>" + sTheRootDir + "<" )
+        if (DEBUG) : print( "creer=>" + sTheRootDir + "<" )
+        if not os.path.exists(sTheRootDir):
+            os.makedirs(sTheRootDir)
+    return sTheRootDir
+
+def MakS3Story( sTheChe, sTheCheDirDeja, sThes3Root, sThes3File ):
+    if (DEBUG) : print( "MakS3Story sThe=>" + sTheChe + "|" + sTheCheDirDeja + "|" + sThes3Root +"|"+ sThes3File + "<=" )    
+    sStoryDir = sThes3Root.replace( (sTheChe+ "/"), "")
+    if (DEBUG) : print( "MakS3Story sStoryDir=>" + sStoryDir + "<=" )
+    sTheStoryDir = "s3g/" + sThes3File + "/" + sStoryDir 
+    if (DEBUG) : print( "MakS3Story sTheStoryDir=>" + sTheStoryDir + "<=" )
+    sDirs = sTheStoryDir.split("/"[0])
+    sTheRootDir = sTheCheDirDeja
+    for sItemDir in sDirs:
+        sTheRootDir = sTheRootDir + "/" + sItemDir
+        if (DEBUG) : print( "creer=>" + sTheRootDir + "<" )
         if not os.path.exists(sTheRootDir):
             os.makedirs(sTheRootDir)
     return
@@ -109,8 +125,9 @@ def MoveGlacier( s3Root, s3File ):
     sDirSrc = ReplaceCS(s3Root) + "/" 
     sDirDst = ReplaceCS(sChe) + "/s3g/" + GetExtendFile(s3File) + "/" + GetAAAA(sCreatDateFile) + "/" + GetMM(sCreatDateFile) + "/" + GetDD(sCreatDateFile) + "/" 
     if (DEBUG) : print( "MOVE " + sDirSrc + s3File + "->" + sDirDst + s3File )
-    MakS3Dir( sChe, sDirDst )
+    sCheDirDeja = MakS3Dir( sChe, sDirDst )
     shutil.move( sDirSrc + s3File, sDirDst + s3File )
+    MakS3Story( sChe, sCheDirDeja, ReplaceCS(s3Root), s3File)
  
 #   Programme Principal
 #
@@ -122,9 +139,10 @@ print ( "==> " + sChe )
 for sRoot, sDir, sFiles in os.walk(sChe):
     if (DEBUG) : print ( "sRoot=>" + sRoot + "<=")
     for sFile in sFiles:
+        print ( ".", end='' ) 
         MoveGlacier( sRoot, sFile )
-
-
+    
+print ( "" )
 print ( "<== " + sChe )
 #   
 #   Fin de programme
